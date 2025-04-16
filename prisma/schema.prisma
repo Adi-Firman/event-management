@@ -1,0 +1,110 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String    @id @default(cuid())
+  email          String    @unique
+  password       String
+  name           String
+  profilePicture String?
+  role           Role      @default(CUSTOMER)
+  points         Int       @default(0)
+  referralCode   String    @unique
+  referredBy     String?   // kode referral orang lain
+  createdAt      DateTime  @default(now())
+  coupons        Coupon[]
+  transactions   Transaction[]
+  reviews        Review[]
+  events         Event[]   @relation("OrganizerEvents")
+}
+
+model Event {
+  id            String     @id @default(cuid())
+  name          String
+  description   String
+  location      String
+  category      String
+  price         Int
+  startDate     DateTime
+  endDate       DateTime
+  availableSeat Int
+  organizer     User       @relation("OrganizerEvents", fields: [organizerId], references: [id])
+  organizerId   String
+  createdAt     DateTime   @default(now())
+  tickets       Ticket[]
+  vouchers      Voucher[]
+  transactions  Transaction[]
+  reviews       Review[]
+}
+
+model Ticket {
+  id       String  @id @default(cuid())
+  name     String
+  price    Int
+  event    Event   @relation(fields: [eventId], references: [id])
+  eventId  String
+}
+
+model Voucher {
+  id         String   @id @default(cuid())
+  code       String   @unique
+  discount   Int
+  event      Event    @relation(fields: [eventId], references: [id])
+  eventId    String
+  validFrom  DateTime
+  validUntil DateTime
+}
+
+model Coupon {
+  id         String   @id @default(cuid())
+  code       String   @unique
+  discount   Int
+  user       User     @relation(fields: [userId], references: [id])
+  userId     String
+  validUntil DateTime
+}
+
+model Transaction {
+  id             String     @id @default(cuid())
+  user           User       @relation(fields: [userId], references: [id])
+  userId         String
+  event          Event      @relation(fields: [eventId], references: [id])
+  eventId        String
+  quantity       Int
+  totalPrice     Int
+  paymentProof   String?
+  status         TransactionStatus @default(WAITING_PAYMENT)
+  createdAt      DateTime   @default(now())
+  expiredAt      DateTime?
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  rating    Int
+  comment   String
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  event     Event    @relation(fields: [eventId], references: [id])
+  eventId   String
+  createdAt DateTime @default(now())
+}
+
+enum Role {
+  CUSTOMER
+  ORGANIZER
+}
+
+enum TransactionStatus {
+  WAITING_PAYMENT
+  WAITING_CONFIRMATION
+  DONE
+  REJECTED
+  EXPIRED
+  CANCELED
+}
