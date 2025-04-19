@@ -1,7 +1,8 @@
-"use client";
+'use client';
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { Role } from "@prisma/client";
 
 export default function RegisterPage() {
   const [form, setForm] = useState({
@@ -9,13 +10,14 @@ export default function RegisterPage() {
     password: "",
     name: "",
     referral: "",
+    role: "CUSTOMER" as Role, // default role
   });
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
@@ -85,6 +87,15 @@ export default function RegisterPage() {
           onChange={handleChange}
           className="w-full border px-3 py-2 rounded"
         />
+        <select
+          name="role"
+          value={form.role}
+          onChange={handleChange}
+          className="w-full border px-3 py-2 rounded"
+        >
+          <option value="CUSTOMER">Customer</option>
+          <option value="ORGANIZER">Organizer</option>
+        </select>
 
         {error && <p className="text-red-500 text-sm">{error}</p>}
 

@@ -5,7 +5,7 @@ import bcrypt from "bcrypt";
 
 export async function POST(req: Request) {
   const body = await req.json();
-  const { email, password, name, referral } = body;
+  const { email, password, name, referral, role } = body;
 
   const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -26,7 +26,7 @@ export async function POST(req: Request) {
       email,
       name,
       password: hashedPassword,
-      role: "CUSTOMER",
+      role: role === "ORGANIZER" ? "ORGANIZER" : "CUSTOMER",
       referralCode,
     },
   });
