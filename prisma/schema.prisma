@@ -25,6 +25,7 @@ model User {
   pointsHistory  Point[]
   resetToken        String?  @unique
   resetTokenExpiry  DateTime?
+  passwordResetTokens PasswordResetToken[]
 }
 
 model Event {
@@ -119,3 +120,12 @@ model Point {
   expiresAt  DateTime
   user       User     @relation(fields: [userId], references: [id])
 }
+
+model PasswordResetToken {
+  id        Int      @id @default(autoincrement())
+  token     String   @unique
+  expiry    DateTime
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+}
+

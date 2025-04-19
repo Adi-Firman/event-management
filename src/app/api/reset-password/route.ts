@@ -1,32 +1,42 @@
-import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-import bcrypt from "bcryptjs";
+import { NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma'; // Pastikan prisma sudah disetup dengan benar
+import bcrypt from 'bcryptjs'; // Untuk hashing password
 
 export async function POST(req: Request) {
   const { token, password } = await req.json();
 
-  const user = await prisma.user.findFirst({
-    where: {
-      AND: [
-        { resetToken: token },
-        { resetTokenExpiry: { gt: new Date() } },
-      ],
-      resetTokenExpiry: { gt: new Date() },
-    },
-  });
+  if (!token || !password) {
+    return NextResponse.json({ message: 'Token dan password diperlukan!' }, { status: 400 });
+  }
 
-  if (!user) return NextResponse.json({ error: "Token tidak valid atau kadaluarsa" }, { status: 400 });
+  try {
+    // Verifikasi token di database atau sistem token reset password
+    const resetToken = await prisma.passwordResetToken.findUnique({
+      where: { token },
+      include: { user: true },
+    });
 
-  const hashed = await bcrypt.hash(password, 10);
+    if (!resetToken || resetToken.expiry < new Date()) {
+      return NextResponse.json({ message: 'Token tidak valid atau sudah kadaluarsa.' }, { status: 400 });
+    }
 
-  await prisma.user.update({
-    where: { id: user.id },
-    data: {
-      password: hashed,
-      resetToken: null,
-      resetTokenExpiry: null,
-    },
-  });
+    // Hash password baru sebelum disimpan di database
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-  return NextResponse.json({ message: "Password berhasil diganti" });
+    // Update password pengguna di database
+    await prisma.user.update({
+      where: { id: resetToken.userId },
+      data: { password: hashedPassword },
+    });
+
+    // Hapus token setelah digunakan untuk keamanan
+    await prisma.passwordResetToken.delete({
+      where: { token },
+    });
+
+    return NextResponse.json({ message: 'Password berhasil direset!' });
+  } catch (error) {
+    console.error('Error saat mereset password:', error);
+    return NextResponse.json({ message: 'Terjadi kesalahan saat mereset password.' }, { status: 500 });
+  }
 }
