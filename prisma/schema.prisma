@@ -4,8 +4,9 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  url      = env("DATABASE_URL") // ini harus dari Supabase
 }
+
 
 model User {
   id             String    @id @default(cuid())
@@ -28,6 +29,8 @@ model User {
   passwordResetTokens PasswordResetToken[]
 }
 
+// prisma/schema.prisma
+
 model Event {
   id            String     @id @default(cuid())
   name          String
@@ -39,9 +42,11 @@ model Event {
   endDate       DateTime
   availableSeat Int
   organizer     User       @relation("OrganizerEvents", fields: [organizerId], references: [id])
-  organizerId   String
+  organizerId   String   // Pastikan ini cocok dengan auth.uid()
   createdAt     DateTime   @default(now())
+  image         String?    // Menyimpan URL gambar
   tickets       Ticket[]
+  
   vouchers      Voucher[]
   transactions  Transaction[]
   reviews       Review[]
@@ -125,7 +130,6 @@ model PasswordResetToken {
   id        Int      @id @default(autoincrement())
   token     String   @unique
   expiry    DateTime
-  userId    Int
+  userId    String   // Ubah dari Int ke String
   user      User     @relation(fields: [userId], references: [id])
 }
-
