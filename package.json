@@ -10,7 +10,7 @@
     "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
-    "@auth/prisma-adapter": "^2.8.0",
+    "@auth/prisma-adapter": "^2.9.0",
     "@hookform/resolvers": "^5.0.1",
     "@prisma/client": "^6.6.0",
     "@supabase/auth-helpers-nextjs": "^0.10.0",
@@ -20,6 +20,7 @@
     "bcryptjs": "^3.0.2",
     "classnames": "^2.5.1",
     "date-fns": "^4.1.0",
+    "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
     "lodash.debounce": "^4.0.8",
     "next": "15.3.0",
@@ -28,6 +29,7 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-hook-form": "^7.55.0",
+    "react-toastify": "^11.0.5",
     "winston": "^3.17.0",
     "zod": "^3.24.2",
     "zustand": "^5.0.3"
@@ -43,6 +45,7 @@
     "@types/nodemailer": "^6.4.17",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/react-toastify": "^4.0.2",
     "@types/uuid": "^10.0.0",
     "autoprefixer": "^10.4.21",
     "eslint": "^9",

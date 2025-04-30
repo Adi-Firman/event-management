@@ -1,31 +1,15 @@
 import { NextResponse } from 'next/server'
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
-import { cookies } from 'next/headers'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
-import { supabase } from '@/lib/supabase'
 import logger from '@/lib/logger'
+import { supabase } from '@/lib/supabase' // client untuk upload image
 
 export async function POST(request: Request) {
   try {
-    const cookieStore = await cookies()
+    const session = await getServerSession(authOptions)
 
-    // ✅ Log token Supabase dari cookies
-    const token = cookieStore.get('sb-kryvuewxfngisuwdqksi-auth-token')
-    logger.info('Supabase Auth Token:', token?.value)
-
-    const supabaseClient = createRouteHandlerClient({ cookies: () => cookies() })
-
-    const {
-      data: { session },
-      error: sessionError,
-    } = await supabaseClient.auth.getSession()
-
-    if (sessionError) {
-      logger.error('Gagal mendapatkan session: ' + sessionError.message)
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
-    if (!session) {
+    if (!session || !session.user) {
       logger.error('Unauthorized: No user session found.')
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
@@ -44,7 +28,7 @@ export async function POST(request: Request) {
     let imageUrl = ''
     if (imageFile) {
       const filePath = `events/${Date.now()}_${imageFile.name}`
-      const { data: uploadData, error: uploadError } = await supabaseClient.storage
+      const { data: uploadData, error: uploadError } = await supabase.storage
         .from('event-images')
         .upload(filePath, imageFile, {
           cacheControl: '3600',
@@ -58,7 +42,7 @@ export async function POST(request: Request) {
 
       const {
         data: { publicUrl },
-      } = supabaseClient.storage.from('event-images').getPublicUrl(filePath)
+      } = supabase.storage.from('event-images').getPublicUrl(filePath)
 
       imageUrl = publicUrl
     }
@@ -74,7 +58,7 @@ export async function POST(request: Request) {
         endDate: new Date(endDate),
         availableSeat,
         image: imageUrl,
-        organizerId: session.user.id,
+        organizerId: session.user.id!, // karena kamu sudah extend session
       },
     })
 

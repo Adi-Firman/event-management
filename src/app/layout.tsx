@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { SessionProvider } from "next-auth/react";
+import Providers from "@/components/Providers"; // untuk SessionProvider
+import Navbar from "@/components/Navbar"; // agar Navbar muncul di semua halaman
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -20,18 +21,17 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        {children}
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <Providers>
+          <Navbar /> {/* ✅ Letakkan di dalam Provider agar bisa akses useSession */}
+          {children}
+        </Providers>
       </body>
     </html>
   );
 }
-
-// Removed duplicate RootLayout function

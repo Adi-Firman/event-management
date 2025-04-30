@@ -4,203 +4,191 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 
 export default function CreateEventPage() {
-  const [title, setTitle] = useState('')
-  const [description, setDescription] = useState('')
-  const [location, setLocation] = useState('')
-  const [category, setCategory] = useState('')
-  const [priceFormatted, setPriceFormatted] = useState('')
-  const [priceRaw, setPriceRaw] = useState(0)
-  const [startDate, setStartDate] = useState('')
-  const [endDate, setEndDate] = useState('')
-  const [availableSeat, setAvailableSeat] = useState(0)
-  const [image, setImage] = useState<File | null>(null)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
   const router = useRouter()
 
-  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const raw = e.target.value.replace(/[^0-9]/g, '')
-    const number = Number(raw)
-    setPriceRaw(number)
-    setPriceFormatted(number.toLocaleString('id-ID'))
+  const [form, setForm] = useState({
+    title: '',
+    description: '',
+    location: '',
+    category: '',
+    price: '',
+    startDate: '',
+    endDate: '',
+    availableSeat: '',
+  })
+
+  const [imageFile, setImageFile] = useState<File | null>(null)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setForm({ ...form, [e.target.name]: e.target.value })
+  }
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      setImageFile(file)
+    }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setError('')
-    setLoading(true)
-
-    // Validasi tambahan
-    if (priceRaw <= 0 || availableSeat <= 0) {
-      setError('Harga dan jumlah kursi harus lebih dari 0.')
-      setLoading(false)
-      return
-    }
-
-    if (new Date(startDate) >= new Date(endDate)) {
-      setError('Tanggal mulai harus lebih awal dari tanggal selesai.')
-      setLoading(false)
-      return
-    }
-
-    const formData = new FormData()
-    formData.append('title', title)
-    formData.append('description', description)
-    formData.append('location', location)
-    formData.append('category', category)
-    formData.append('price', priceRaw.toString())
-    formData.append('startDate', startDate)
-    formData.append('endDate', endDate)
-    formData.append('availableSeat', availableSeat.toString())
-    if (image) {
-      formData.append('image', image)
-    }
+    setIsSubmitting(true)
 
     try {
+      const formData = new FormData()
+      formData.append('title', form.title)
+      formData.append('description', form.description)
+      formData.append('location', form.location)
+      formData.append('category', form.category)
+      formData.append('price', form.price)
+      formData.append('startDate', form.startDate)
+      formData.append('endDate', form.endDate)
+      formData.append('availableSeat', form.availableSeat)
+      if (imageFile) {
+        formData.append('image', imageFile)
+      }
+
       const res = await fetch('/api/events', {
         method: 'POST',
         body: formData,
       })
 
-      if (!res.ok) {
-        const errorData = await res.json()
-        setError(errorData.error || 'Gagal menambahkan event')
-        return
-      }
+      const data = await res.json()
 
-      router.push('/dashboard/organizer/events')
-    } catch (err) {
-      console.error('Terjadi kesalahan:', err)
-      setError('Terjadi kesalahan saat mengirim data')
+      if (!res.ok) {
+        alert(data.error || 'Gagal menambahkan event')
+      } else {
+        alert('Event berhasil ditambahkan!')
+        router.push('/dashboard/organizer/events')
+      }
+    } catch (err: any) {
+      console.error(err)
+      alert('Terjadi kesalahan')
     } finally {
-      setLoading(false)
+      setIsSubmitting(false)
     }
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 py-12 px-4">
-      <div className="max-w-2xl mx-auto bg-white rounded-2xl shadow-lg p-8">
-        <h1 className="text-2xl font-bold mb-6 text-center text-gray-800">
-          Tambah Event Baru
-        </h1>
-        <form onSubmit={handleSubmit} className="space-y-5">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Judul Event</label>
-            <input
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-400"
-              required
-            />
-          </div>
+    <form onSubmit={handleSubmit} className="space-y-4 max-w-xl mx-auto p-4 bg-white rounded-lg shadow-md">
+      <h1 className="text-2xl font-bold text-center">Tambah Event Baru</h1>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Deskripsi Event</label>
-            <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-400"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Lokasi</label>
-            <input
-              type="text"
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
-              className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-400"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Kategori</label>
-            <input
-              type="text"
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-400"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Harga (Rp)</label>
-            <input
-              type="text"
-              value={priceFormatted}
-              onChange={handlePriceChange}
-              className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-400"
-              required
-            />
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Tanggal Mulai</label>
-              <input
-                type="datetime-local"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-                className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-400"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Tanggal Selesai</label>
-              <input
-                type="datetime-local"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-                className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-400"
-                required
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Kursi Tersedia</label>
-            <input
-              type="number"
-              value={availableSeat}
-              onChange={(e) => setAvailableSeat(Math.max(0, Number(e.target.value)))}
-              className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-400"
-              required
-              min={0}
-              step="1"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Gambar Event</label>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(e) => setImage(e.target.files?.[0] || null)}
-              className="w-full"
-            />
-            {image && (
-              <img
-                src={URL.createObjectURL(image)}
-                alt="Preview"
-                className="w-full h-auto mt-2 rounded-lg"
-              />
-            )}
-          </div>
-
-          {error && <p className="text-red-500 text-sm">{error}</p>}
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg w-full hover:bg-blue-700 transition"
-          >
-            {loading ? 'Menyimpan...' : 'Tambah Event'}
-          </button>
-        </form>
+      <div>
+        <label className="block text-sm font-medium text-gray-700">Judul Event</label>
+        <input
+          name="title"
+          placeholder="Judul Event"
+          onChange={handleChange}
+          value={form.title}
+          className="w-full border border-gray-300 rounded-lg px-4 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          required
+        />
       </div>
-    </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700">Deskripsi</label>
+        <textarea
+          name="description"
+          placeholder="Deskripsi Event"
+          onChange={handleChange}
+          value={form.description}
+          className="w-full border border-gray-300 rounded-lg px-4 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          required
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700">Lokasi</label>
+        <input
+          name="location"
+          placeholder="Lokasi"
+          onChange={handleChange}
+          value={form.location}
+          className="w-full border border-gray-300 rounded-lg px-4 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          required
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700">Kategori</label>
+        <input
+          name="category"
+          placeholder="Kategori"
+          onChange={handleChange}
+          value={form.category}
+          className="w-full border border-gray-300 rounded-lg px-4 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          required
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700">Harga</label>
+        <input
+          name="price"
+          type="number"
+          placeholder="Harga"
+          onChange={handleChange}
+          value={form.price}
+          className="w-full border border-gray-300 rounded-lg px-4 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          required
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700">Tanggal Mulai</label>
+        <input
+          name="startDate"
+          type="datetime-local"
+          onChange={handleChange}
+          value={form.startDate}
+          className="w-full border border-gray-300 rounded-lg px-4 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          required
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700">Tanggal Selesai</label>
+        <input
+          name="endDate"
+          type="datetime-local"
+          onChange={handleChange}
+          value={form.endDate}
+          className="w-full border border-gray-300 rounded-lg px-4 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          required
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700">Kursi Tersedia</label>
+        <input
+          name="availableSeat"
+          type="number"
+          placeholder="Kursi Tersedia"
+          onChange={handleChange}
+          value={form.availableSeat}
+          className="w-full border border-gray-300 rounded-lg px-4 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          required
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700">Gambar Event</label>
+        <input
+          type="file"
+          accept="image/*"
+          onChange={handleImageChange}
+          className="w-full border border-gray-300 rounded-lg px-4 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+      </div>
+
+      <button
+        type="submit"
+        disabled={isSubmitting}
+        className="w-full bg-blue-600 text-white px-6 py-3 rounded-lg mt-4 hover:bg-blue-700 disabled:bg-gray-400"
+      >
+        {isSubmitting ? 'Mengirim...' : 'Tambah Event'}
+      </button>
+    </form>
   )
 }

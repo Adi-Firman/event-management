@@ -31,3 +31,9 @@ export async function middleware(request: NextRequest) {
 export const config = {
   matcher: ['/dashboard/:path*'],
 }
+
+export function middleware(request: NextRequest) {
+  console.log("🚦 Incoming request to:", request.nextUrl.pathname);
+  return NextResponse.next();
+}
+
