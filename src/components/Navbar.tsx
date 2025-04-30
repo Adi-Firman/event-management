@@ -1,30 +1,40 @@
-'use client';
+"use client";
 
-import { useSession, signIn, signOut } from 'next-auth/react';
-import Link from 'next/link';
+import { useSession, signOut } from "next-auth/react";
+import Link from "next/link";
 
-export default function Navbar() {
+const Navbar = () => {
   const { data: session, status } = useSession();
 
   return (
-    <nav className="flex justify-between items-center px-6 py-4 bg-gray-100 shadow">
-      <Link href="/" className="text-xl font-bold text-gray-800">Event Platform</Link>
-      <div className="flex items-center gap-4">
-        {status === 'loading' ? (
-          <span className="text-gray-500">Loading...</span>
-        ) : session?.user ? (
-          <>
-            <span className="text-gray-700">Hi, {session.user.name}</span>
-            <button onClick={() => signOut()} className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">
-              Logout
-            </button>
-          </>
-        ) : (
-          <button onClick={() => signIn()} className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-            Login
-          </button>
-        )}
+    <nav className="bg-blue-600 p-4">
+      <div className="container mx-auto flex justify-between items-center">
+        <Link href="/" className="text-white text-lg font-semibold">Home</Link>
+        <div className="flex items-center">
+          {status === "loading" ? (
+            <p className="text-white">Loading...</p>
+          ) : session ? (
+            <>
+              <p className="text-white mr-4">Hello, {session.user?.name}</p>
+              <button
+                onClick={() => signOut()}
+                className="bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700"
+              >
+                Sign Out
+              </button>
+            </>
+          ) : (
+            <Link
+              href="/auth/signin"
+              className="bg-blue-800 text-white py-2 px-4 rounded-md hover:bg-blue-900"
+            >
+              Login
+            </Link>
+          )}
+        </div>
       </div>
     </nav>
   );
-}
+};
+
+export default Navbar;

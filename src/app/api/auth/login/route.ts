@@ -1,42 +1,24 @@
 import { NextResponse } from 'next/server';
-import bcrypt from 'bcryptjs';
-import { prisma } from '@/lib/prisma'; // Adjusted to use an alias if configured in tsconfig.json
-import { sign } from 'jsonwebtoken'; // Untuk menghasilkan token JWT
+import { getSession } from '@/lib/auth';
 
-export async function POST(req: Request) {
-  const { email, password } = await req.json();
+export async function POST(request: Request) {
+  const { email, password } = await request.json();
+  const session = await getSession();
 
-  if (!email || !password) {
-    return NextResponse.json({ message: 'Email dan password diperlukan!' }, { status: 400 });
+  // Contoh validasi sederhana
+  if (email === 'user@example.com' && password === 'password') {
+    session.user = {
+      id: '1',
+      email: 'user@example.com',
+      name: 'Test User',
+    };
+    await session.save();
+    
+    return NextResponse.json({ success: true });
   }
 
-  try {
-    // Cari user berdasarkan email
-    const user = await prisma.user.findUnique({
-      where: { email },
-    });
-
-    if (!user) {
-      return NextResponse.json({ message: 'User tidak ditemukan' }, { status: 400 });
-    }
-
-    // Verifikasi password
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) {
-      return NextResponse.json({ message: 'Password salah' }, { status: 400 });
-    }
-
-    // Generate JWT token
-    const token = sign(
-      { userId: user.id, email: user.email },
-      process.env.JWT_SECRET!, // Pastikan kamu set JWT_SECRET di .env
-      { expiresIn: '1h' }
-    );
-
-    // Kirimkan token ke frontend
-    return NextResponse.json({ message: 'Login sukses', token });
-  } catch (error) {
-    console.error('Error saat login:', error);
-    return NextResponse.json({ message: 'Terjadi kesalahan saat login' }, { status: 500 });
-  }
+  return NextResponse.json(
+    { error: 'Invalid credentials' },
+    { status: 401 }
+  );
 }
