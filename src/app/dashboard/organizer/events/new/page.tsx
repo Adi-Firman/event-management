@@ -78,125 +78,129 @@ export default function CreateEventPage() {
   }
 
   return (
-    <div className="max-w-xl mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-4">Tambah Event Baru</h1>
-      <form onSubmit={handleSubmit} className="space-y-4">
-  <div>
-    <label className="block text-sm font-medium mb-1">Judul Event</label>
-    <input
-      type="text"
-      value={title}
-      onChange={(e) => setTitle(e.target.value)}
-      className="w-full border rounded p-2"
-      required
-    />
-  </div>
+    <div className="min-h-screen bg-gray-100 py-12 px-4">
+      <div className="max-w-2xl mx-auto bg-white rounded-2xl shadow-lg p-8">
+        <h1 className="text-2xl font-bold mb-6 text-center text-gray-800">
+          Tambah Event Baru
+        </h1>
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Judul Event</label>
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-400"
+              required
+            />
+          </div>
 
-  <div>
-    <label className="block text-sm font-medium mb-1">Deskripsi Event</label>
-    <textarea
-      value={description}
-      onChange={(e) => setDescription(e.target.value)}
-      className="w-full border rounded p-2"
-      required
-    />
-  </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Deskripsi Event</label>
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-400"
+              required
+            />
+          </div>
 
-  <div>
-    <label className="block text-sm font-medium mb-1">Lokasi</label>
-    <input
-      type="text"
-      value={location}
-      onChange={(e) => setLocation(e.target.value)}
-      className="w-full border rounded p-2"
-      required
-    />
-  </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Lokasi</label>
+            <input
+              type="text"
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-400"
+              required
+            />
+          </div>
 
-  <div>
-    <label className="block text-sm font-medium mb-1">Kategori</label>
-    <input
-      type="text"
-      value={category}
-      onChange={(e) => setCategory(e.target.value)}
-      className="w-full border rounded p-2"
-    />
-  </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Kategori</label>
+            <input
+              type="text"
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-400"
+            />
+          </div>
 
-  <div>
-    <label className="block text-sm font-medium mb-1">Harga (Rp)</label>
-    <input
-      type="text"
-      value={priceFormatted}
-      onChange={handlePriceChange}
-      className="w-full border rounded p-2"
-      required
-    />
-  </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Harga (Rp)</label>
+            <input
+              type="text"
+              value={priceFormatted}
+              onChange={handlePriceChange}
+              className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-400"
+              required
+            />
+          </div>
 
-  <div>
-    <label className="block text-sm font-medium mb-1">Tanggal Mulai</label>
-    <input
-      type="datetime-local"
-      value={startDate}
-      onChange={(e) => setStartDate(e.target.value)}
-      className="w-full border rounded p-2"
-      required
-    />
-  </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Tanggal Mulai</label>
+              <input
+                type="datetime-local"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-400"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Tanggal Selesai</label>
+              <input
+                type="datetime-local"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-400"
+                required
+              />
+            </div>
+          </div>
 
-  <div>
-    <label className="block text-sm font-medium mb-1">Tanggal Selesai</label>
-    <input
-      type="datetime-local"
-      value={endDate}
-      onChange={(e) => setEndDate(e.target.value)}
-      className="w-full border rounded p-2"
-      required
-    />
-  </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Kursi Tersedia</label>
+            <input
+              type="number"
+              value={availableSeat}
+              onChange={(e) => setAvailableSeat(Math.max(0, Number(e.target.value)))}
+              className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-400"
+              required
+              min={0}
+              step="1"
+            />
+          </div>
 
-  <div>
-    <label className="block text-sm font-medium mb-1">Kursi Tersedia</label>
-    <input
-      type="number"
-      value={availableSeat}
-      onChange={(e) => setAvailableSeat(Math.max(0, Number(e.target.value)))}
-      className="w-full border rounded p-2"
-      required
-      min={0}
-      step="1"
-    />
-  </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Gambar Event</label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => setImage(e.target.files?.[0] || null)}
+              className="w-full"
+            />
+            {image && (
+              <img
+                src={URL.createObjectURL(image)}
+                alt="Preview"
+                className="w-full h-auto mt-2 rounded-lg"
+              />
+            )}
+          </div>
 
-  <div>
-    <label className="block text-sm font-medium mb-1">Gambar Event</label>
-    <input
-      type="file"
-      accept="image/*"
-      onChange={(e) => setImage(e.target.files?.[0] || null)}
-      className="w-full"
-    />
-    {image && (
-      <img
-        src={URL.createObjectURL(image)}
-        alt="Preview"
-        className="w-full h-auto mt-2 rounded"
-      />
-    )}
-  </div>
+          {error && <p className="text-red-500 text-sm">{error}</p>}
 
-  {error && <p className="text-red-500 text-sm">{error}</p>}
-
-  <button
-    type="submit"
-    disabled={loading}
-    className="bg-blue-600 text-white px-4 py-2 rounded w-full"
-  >
-    {loading ? 'Menyimpan...' : 'Tambah Event'}
-  </button>
-</form>
-
+          <button
+            type="submit"
+            disabled={loading}
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg w-full hover:bg-blue-700 transition"
+          >
+            {loading ? 'Menyimpan...' : 'Tambah Event'}
+          </button>
+        </form>
+      </div>
     </div>
   )
 }
