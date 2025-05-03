@@ -1,4 +1,4 @@
-"use client";
+'use client';  // Menandakan ini adalah Client Component
 
 import { useSession, signOut } from "next-auth/react";
 import Link from "next/link";
@@ -28,7 +28,7 @@ const Navbar = () => {
               href="/auth/signin"
               className="bg-blue-800 text-white py-2 px-4 rounded-md hover:bg-blue-900"
             >
-              Login
+              Sign In
             </Link>
           )}
         </div>

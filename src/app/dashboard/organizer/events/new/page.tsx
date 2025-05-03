@@ -57,6 +57,7 @@ export default function CreateEventPage() {
       const data = await res.json()
 
       if (!res.ok) {
+        console.error("API error:", data); // Log error dari API
         alert(data.error || 'Gagal menambahkan event')
       } else {
         alert('Event berhasil ditambahkan!')
@@ -74,6 +75,7 @@ export default function CreateEventPage() {
     <form onSubmit={handleSubmit} className="space-y-4 max-w-xl mx-auto p-4 bg-white rounded-lg shadow-md">
       <h1 className="text-2xl font-bold text-center">Tambah Event Baru</h1>
 
+      {/* Input fields for the event */}
       <div>
         <label className="block text-sm font-medium text-gray-700">Judul Event</label>
         <input

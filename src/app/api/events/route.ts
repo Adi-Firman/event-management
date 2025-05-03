@@ -50,7 +50,12 @@ export async function POST(request: Request) {
     const availableSeat = parseInt(formData.get('availableSeat') as string) || 0;
     const imageFile = formData.get('image') as File | null;
 
-    // 5. Upload Gambar ke Supabase (jika ada)
+    // 5. Validasi harga dan tanggal
+    if (isNaN(price) || isNaN(availableSeat) || isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+      return NextResponse.json({ error: 'Invalid input for price, availableSeat, or dates' }, { status: 400 });
+    }
+
+    // 6. Upload Gambar ke Supabase (jika ada)
     let imageUrl = null;
     if (imageFile) {
       try {
@@ -73,11 +78,11 @@ export async function POST(request: Request) {
         imageUrl = publicUrl;
       } catch (error) {
         logger.error('Image upload failed:', error);
-        // Lanjut tanpa gambar daripada gagal seluruhnya
+        // Lanjut tanpa gambar jika gagal
       }
     }
 
-    // 6. Simpan ke Database
+    // 7. Simpan ke Database
     const event = await prisma.event.create({
       data: {
         name: title,
@@ -93,12 +98,12 @@ export async function POST(request: Request) {
       },
     });
 
-    // 7. Log dan Response Sukses
+    // 8. Log dan Response Sukses
     logger.info(`Event created - ID: ${event.id} by User: ${session.user.id}`);
     return NextResponse.json(event, { status: 201 });
 
   } catch (error: any) {
-    // 8. Error Handling
+    // 9. Error Handling
     logger.error('Create event error:', error);
     
     return NextResponse.json(
@@ -107,7 +112,7 @@ export async function POST(request: Request) {
         message: error instanceof Error ? error.message : 'Internal server error',
         timestamp: new Date().toISOString()
       },
-      { status: error instanceof Error ? 500 : 500 }
+      { status: 500 }
     );
   }
 }

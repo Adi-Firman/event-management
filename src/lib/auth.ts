@@ -1,29 +1,19 @@
-// src/lib/auth.ts
-import { PrismaAdapter } from "@auth/prisma-adapter";
-import { prisma } from "./prisma"; // Sesuaikan path
-import { NextAuthOptions } from "next-auth";
-import GoogleProvider from "next-auth/providers/google"; // Contoh provider
+// lib/auth.ts
+import { AuthOptions } from 'next-auth';
+import CredentialsProvider from 'next-auth/providers/credentials'; // atau yang kamu pakai
 
-export const authOptions: NextAuthOptions = {
-  adapter: PrismaAdapter(prisma),
+export const authOptions: AuthOptions = {
   providers: [
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    CredentialsProvider({
+      name: 'Credentials',
+      credentials: {
+        email: { label: 'Email', type: 'email' },
+        password: { label: 'Password', type: 'password' },
+      },
+      async authorize(credentials) {
+        // logika autentikasi kamu di sini
+      },
     }),
-    // Tambahkan provider lain di sini
   ],
-  session: {
-    strategy: "jwt",
-  },
-  callbacks: {
-    async jwt({ token, user }) {
-      if (user) token.id = user.id;
-      return token;
-    },
-    async session({ session, token }) {
-      if (token && session.user) session.user.id = token.id as string;
-      return session;
-    },
-  },
+  // session, callbacks, dsb.
 };

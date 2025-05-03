@@ -1,11 +1,28 @@
-import Navbar from '@/components/Navbar'; // Impor Navbar
-import { SessionProvider } from 'next-auth/react'; // Impor SessionProvider
+// src/app/layout.tsx
+import { ReactNode } from 'react';
+import './globals.css'; // pastikan file global CSS sudah dibuat
+import Providers from '@/components/Providers'; // konteks global seperti next-auth, theme, dsb.
 
-export default function Layout({ children }: { children: React.ReactNode }) {
+export const metadata = {
+  title: 'Event Management',
+  description: 'Platform pengelolaan event dengan fitur lengkap',
+};
+
+export default function RootLayout({
+  children,
+}: {
+  children: ReactNode;
+}) {
   return (
-    <SessionProvider>
-      <Navbar /> {/* Navbar ditampilkan di sini */}
-      <div>{children}</div> {/* Menampilkan konten halaman */}
-    </SessionProvider>
+    <html lang="id">
+      <head>
+        {/* Kamu bisa menambahkan font, favicon, atau meta lainnya di sini */}
+      </head>
+      <body className="min-h-screen bg-gray-50 text-gray-900 antialiased">
+        <Providers>
+          {children}
+        </Providers>
+      </body>
+    </html>
   );
 }
